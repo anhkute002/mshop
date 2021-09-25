@@ -74,8 +74,7 @@ public class CartActivity extends AppCompatActivity {
         });
 
 
-        LocalBroadcastManager.getInstance(this)
-                .registerReceiver(mMessageReceiver,new IntentFilter("MyTotalAmount"));
+
 
         overAllAmount = findViewById(R.id.textView3);
         recyclerView = findViewById(R.id.card_rec);
@@ -99,6 +98,7 @@ public class CartActivity extends AppCompatActivity {
                         cartModelList.add(myCartModel);
                         cartAdapter.notifyDataSetChanged();
                     }
+                    calculateTotalAmount(cartModelList);
                 }
             }
         });
@@ -112,19 +112,14 @@ public class CartActivity extends AppCompatActivity {
         });
 
     }
-    public BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            int totalBill = intent.getIntExtra("totalAmount",0);
-            overAllAmount.setText("Total Amount:"+totalBill+"$");
+
+    private void calculateTotalAmount(List<MyCartModel> cartModelList) {
+        double totalAmount = 0.0;
+        for(MyCartModel myCartModel: cartModelList){
+            totalAmount += myCartModel.getTotalPrice();
         }
-    };
-
-
-
-
-
-
+        overAllAmount.setText("Total Amount :"+totalAmount);
+    }
 
 
 }
