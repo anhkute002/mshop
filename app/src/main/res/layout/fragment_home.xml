@@ -21,6 +21,17 @@
             app:iss_auto_cycle="true"
             app:iss_delay="0"
             app:iss_period="1000" />
+        <EditText
+            android:elevation="3dp"
+            android:id="@+id/search_box"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:drawableLeft="@drawable/ic_search"
+            android:padding="13dp"
+            android:hint="Search your item here..."
+            android:drawablePadding="5dp"/>
+
 
         <LinearLayout
             android:layout_width="match_parent"

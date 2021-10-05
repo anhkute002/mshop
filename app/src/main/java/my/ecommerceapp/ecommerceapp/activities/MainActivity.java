@@ -62,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
 
         }else if(id == R.id.menu_my_cart){
             startActivity(new Intent(MainActivity.this,CartActivity.class));
+        }else if(id == R.id.contact){
+            startActivity(new Intent(MainActivity.this,ContactActivity.class));
         }
         return true;
     }
