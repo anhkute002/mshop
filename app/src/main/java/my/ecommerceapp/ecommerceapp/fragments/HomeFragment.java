@@ -10,9 +10,12 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,6 +25,7 @@ import com.denzcoskun.imageslider.constants.ScaleTypes;
 import com.denzcoskun.imageslider.models.SlideModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -33,10 +37,12 @@ import my.ecommerceapp.ecommerceapp.CategoryAdapter;
 import my.ecommerceapp.ecommerceapp.NewProductAdapter;
 import my.ecommerceapp.ecommerceapp.PopularAdapter;
 import my.ecommerceapp.ecommerceapp.R;
+import my.ecommerceapp.ecommerceapp.ShowAllAdapter;
 import my.ecommerceapp.ecommerceapp.activities.ShowAllActivity;
 import my.ecommerceapp.ecommerceapp.models.CategoryModel;
 import my.ecommerceapp.ecommerceapp.models.NewProductsModel;
 import my.ecommerceapp.ecommerceapp.models.PopularProductsModel;
+import my.ecommerceapp.ecommerceapp.models.ShowAllModel;
 
 
 public class HomeFragment extends Fragment {
@@ -48,6 +54,11 @@ public class HomeFragment extends Fragment {
 
     RecyclerView catRecyclerview , newProductRecyclerview , popularRecyclerview;
 
+    //search
+    EditText search_box;
+    private List<ShowAllModel> showAllModelList;
+    private RecyclerView recyclerViewSearch;
+    private ShowAllAdapter showAllAdapter;
 
     CategoryAdapter categoryAdapter;
     List<CategoryModel> categoryModelList;
@@ -198,10 +209,62 @@ public class HomeFragment extends Fragment {
                     }
                 });
 
+        //search
+        recyclerViewSearch = root.findViewById(R.id.search_rec);
+        search_box = root.findViewById(R.id.search_box);
+        showAllModelList = new ArrayList<>();
+        showAllAdapter = new ShowAllAdapter(getContext(),showAllModelList);
+        recyclerViewSearch.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerViewSearch.setAdapter(showAllAdapter);
+        recyclerViewSearch.setHasFixedSize(true);
+        search_box.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s.toString().isEmpty()){
+                    showAllModelList.clear();
+                    showAllAdapter.notifyDataSetChanged();
+                }else {
+                    searchProduct(s.toString());
+                }
+            }
+        });
+
         return  root;
 
 
 
 
+    }
+
+    private void searchProduct(String type) {
+
+        if(!type.isEmpty()){
+            db.collection("AllProducts").whereEqualTo("type",type).get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+
+                            if (task.isSuccessful() && task.getResult()!=null){
+                                showAllModelList.clear();
+                                showAllAdapter.notifyDataSetChanged();
+                                for(DocumentSnapshot doc: task.getResult().getDocuments()){
+                                    ShowAllModel showAllModel = doc.toObject(ShowAllModel.class);
+                                    showAllModelList.add(showAllModel);
+                                    showAllAdapter.notifyDataSetChanged();
+                                }
+                            }
+                        }
+                    });
+        }
     }
 }
